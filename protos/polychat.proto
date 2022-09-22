@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package polychat;
+
+option java_package = "club.moddedminecraft.polychat.core.messagelibrary";
+option java_outer_classname = "ChatProtos";
+
+message ChatMessage {
+    string serverId = 1;
+    string message = 2;
+    int32 messageOffset = 3;
+}
+
+message GenericCommand {
+    string discordChannelId = 1;
+    string discordCommandName = 2;
+    string defaultCommand = 3;
+    repeated string args = 4;
+}
+
+message GenericCommandResult {
+    string serverId = 1;
+    string discordChannelId = 2;
+    string command = 3;
+    string commandOutput = 4;
+    string colour = 5;
+}
+
+message PromoteMemberCommand {
+    string serverId = 1;
+    string username = 2;
+}
+
+message ServerInfo {
+    string serverId = 1;
+    string serverName = 2;
+    string serverAddress = 3;
+    int32 maxPlayers = 4;
+}
+
+message ServerStatus {
+    string serverId = 1;
+    ServerStatusEnum status = 2;
+
+    enum ServerStatusEnum {
+        UNKNOWN = 0;
+        STARTED = 1;
+        STOPPED = 2;
+        CRASHED = 3;
+    }
+}
+
+message ServerPlayersOnline {
+    string serverId = 1;
+    int32 playersOnline = 2;
+    repeated string playerNames = 3;
+}
+
+message ServerPlayerStatusChangedEvent {
+    PlayerStatus newPlayerStatus = 1;
+    string playerUsername = 2;
+    ServerPlayersOnline newPlayersOnline = 3;
+
+    enum PlayerStatus {
+        UNKNOWN = 0;
+        JOINED = 1;
+        LEFT = 2;
+    }
+}
