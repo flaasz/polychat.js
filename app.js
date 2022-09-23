@@ -1,4 +1,4 @@
-require("./modules/deploy-commands.js");
+require("./deploy-commands.js");
 
 const fs = require('node:fs');
 const path = require('node:path');
@@ -58,8 +58,6 @@ client.on('interactionCreate', async interaction => {
 	}
 });
 
-client.login(token);
-console.log("App listening on port", port);
 
 
 /* CHAT SERVER */
@@ -76,10 +74,12 @@ var server = net.createServer(function (socket) {
 	clients.push(socket);
 
 	socket.on('data', function (data) {
-		decoder.decode(data, socket, clients);
+		decoder.decode(data, socket, clients, client);
 	});
 
 });
 
 server.listen(port, '127.0.0.1');
 console.log("Chat server online on port ", port, "!");
+client.login(token);
+console.log("App listening on port", port);

@@ -1,9 +1,11 @@
-var protobuf = require("protobufjs");
+const protobuf = require("protobufjs");
+
+const { chatchannelid } = require("../config.json");
 
 
 module.exports = {
 
-    decode: function (data, socket, clients) {
+    decode: async function (data, socket, clients, bot) {
         broadcast(data, socket);
         protobuf.load("./protos/any.proto", function (err, root) {
             if (err) throw err;
@@ -12,7 +14,7 @@ module.exports = {
 
             var unwrapped = wrap.decode(data);
 
-            protobuf.load("./protos/polychat.proto", function (err, root) {
+            protobuf.load("./protos/polychat.proto", async function (err, root) {
                 if (err) throw err;
 
                 let type = unwrapped.typeUrl.split("/").pop();
@@ -21,14 +23,50 @@ module.exports = {
 
                 var decoded = pc.decode(unwrapped.value);
 
-                console.log(type);
+                console.log(decoded);
 
                 if (type == "polychat.ServerPlayerStatusChangedEvent") {
                     if (decoded.newPlayerStatus == 1) {
-                        console.log(decoded.playerUsername," joined the game!");
+                        console.log(decoded.playerUsername,"joined the game!");
+                        const channel = bot.channels.cache.get(chatchannelid);
+                        try {
+                            const webhooks = await channel.fetchWebhooks();
+                            const webhook = webhooks.find(wh => wh.token);
+                
+                            if (!webhook) {
+                                return console.log('No webhook was found that I can use!');
+                            }
+                
+                            await webhook.send({
+                                content: `${decoded.playerUsername} joined the game!`,
+                                username: `${decoded.serverId} Server`,
+                                avatarURL: `https://mc-heads.net/head/${decoded.playerUsername}`,
+                            });
+                        } catch (error) {
+                            console.error('Error trying to send: ', error);
+                        }
+                
                     }
                     else if (decoded.newPlayerStatus == 2) {
-                        console.log(decoded.playerUsername," left the game!");
+                        console.log(decoded.playerUsername,"left the game!");
+                        const channel = bot.channels.cache.get(chatchannelid);
+                        try {
+                            const webhooks = await channel.fetchWebhooks();
+                            const webhook = webhooks.find(wh => wh.token);
+                
+                            if (!webhook) {
+                                return console.log('No webhook was found that I can use!');
+                            }
+                
+                            await webhook.send({
+                                content: `${decoded.playerUsername} left the game!`,
+                                username: `${decoded.serverId} Server`,
+                                avatarURL: `https://mc-heads.net/head/${decoded.playerUsername}`,
+                            });
+                        } catch (error) {
+                            console.error('Error trying to send: ', error);
+                        }
+
                     }
                     else {
                         console.log("Player changed status, but an error occured!");
