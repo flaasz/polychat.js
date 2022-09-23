@@ -39,7 +39,7 @@ module.exports = {
                 
                             await webhook.send({
                                 content: `${decoded.playerUsername} joined the game!`,
-                                username: `${decoded.serverId} Server`,
+                                username: `${decoded.newPlayersOnline.serverId} Server`,
                                 avatarURL: `https://mc-heads.net/head/${decoded.playerUsername}`,
                             });
                         } catch (error) {
@@ -60,7 +60,7 @@ module.exports = {
                 
                             await webhook.send({
                                 content: `${decoded.playerUsername} left the game!`,
-                                username: `${decoded.serverId} Server`,
+                                username: `${decoded.newPlayersOnline.serverId} Server`,
                                 avatarURL: `https://mc-heads.net/head/${decoded.playerUsername}`,
                             });
                         } catch (error) {
