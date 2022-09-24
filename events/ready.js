@@ -2,7 +2,9 @@ const {
     EmbedBuilder
 } = require('discord.js');
 
-const { chatchannelid } = require("../config.json");
+const {
+    chatchannelid, botLogo
+} = require("../config.json");
 
 
 module.exports = {
@@ -10,23 +12,27 @@ module.exports = {
     once: true,
     async execute(client) {
         const embed = new EmbedBuilder()
-            .setTitle('Some Title')
+            .setTitle('Bot Online')
             .setColor(0x00FFFF);
 
         console.log(`Ready! Logged in as ${client.user.tag}`);
         const channel = client.channels.cache.get(chatchannelid);
         try {
             const webhooks = await channel.fetchWebhooks();
-            const webhook = webhooks.find(wh => wh.token);
+            var webhook = webhooks.find(wh => wh.token);
 
             if (!webhook) {
-                return console.log('No webhook was found that I can use!');
+                webhook = await channel.createWebhook({
+                        name: 'Chat Relay',
+                        avatar: botLogo,
+                    })
+                    .catch(console.error);
+                console.log(`No webhooks were found so I made one!`)
             }
 
             await webhook.send({
-                content: 'Webhook test',
-                username: 'some-username',
-                avatarURL: 'https://i.imgur.com/AfFp7pu.png',
+                username: client.username,
+                avatarURL: botLogo,
                 embeds: [embed],
             });
         } catch (error) {

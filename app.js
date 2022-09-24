@@ -9,7 +9,8 @@ const {
 } = require('discord.js');
 const {
 	token,
-	port
+	port,
+	host
 } = require('./config.json');
 
 const client = new Client({
@@ -65,6 +66,7 @@ client.on('interactionCreate', async interaction => {
 
 const decoder = require("./modules/decoder.js");
 const net = require('net');
+const { hostname } = require("node:os");
 
 
 var clients = [];
@@ -79,7 +81,7 @@ var server = net.createServer(function (socket) {
 
 });
 
-server.listen(port, '127.0.0.1');
+server.listen(port, host);
 console.log("Chat server online on port ", port, "!");
 client.login(token);
 console.log("App listening on port", port);

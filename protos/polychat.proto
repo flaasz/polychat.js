@@ -2,9 +2,6 @@ syntax = "proto3";
 
 package polychat;
 
-option java_package = "club.moddedminecraft.polychat.core.messagelibrary";
-option java_outer_classname = "ChatProtos";
-
 message ChatMessage {
     string serverId = 1;
     string message = 2;
