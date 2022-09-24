@@ -1,3 +1,4 @@
+
 const protobuf = require("protobufjs");
 
 const {
@@ -31,6 +32,8 @@ module.exports = {
 
             try {
                 var unwrapped = wrap.decode(data);
+                console.log(unwrapped);
+
             } catch (e) {
                 console.log(data.length);
 
@@ -38,7 +41,6 @@ module.exports = {
 
             }
 
-            console.log(unwrapped);
             var output = {
                 name: "",
                 content: "",
@@ -53,7 +55,7 @@ module.exports = {
 
                 var pc = root.lookupType(type);
 
-                var decoded = pc.decode(unwrapped.value)
+                var decoded = pc.decode(unwrapped.value);
                 console.log(decoded);
 
                 if (type == "polychat.ServerInfo") {
@@ -65,7 +67,7 @@ module.exports = {
                             ip: decoded.serverAddress,
                             max: decoded.maxPlayers
                         }
-                    }
+                    };
 
                     serverInfo = Object.assign(serverInfo, newServerInfo);
 
@@ -195,4 +197,4 @@ module.exports = {
 
 
     }
-}
+};

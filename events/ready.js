@@ -27,7 +27,7 @@ module.exports = {
                         avatar: botLogo,
                     })
                     .catch(console.error);
-                console.log(`No webhooks were found so I made one!`)
+                console.log(`No webhooks were found so I made one!`);
             }
 
             await webhook.send({
