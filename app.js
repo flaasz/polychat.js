@@ -10,11 +10,17 @@ const {
 const {
 	token,
 	port,
-	host
+	host,
+	chatchannelid
 } = require('./config.json');
 
 const client = new Client({
-	intents: [GatewayIntentBits.Guilds]
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMembers,
+	]
 });
 
 
@@ -63,10 +69,9 @@ client.on('interactionCreate', async interaction => {
 
 /* CHAT SERVER */
 
-
+const encoder = require("./modules/encoder.js");
 const decoder = require("./modules/decoder.js");
 const net = require('net');
-const { hostname } = require("node:os");
 
 
 var clients = [];
@@ -79,6 +84,32 @@ var server = net.createServer(function (socket) {
 		decoder.decode(data, socket, clients, client);
 	});
 
+});
+
+client.on('messageCreate', message => {
+	try {
+
+		if (message.author.bot) return;
+		if (message.channel != chatchannelid) return;
+		//console.log(message);
+
+		let processedMessage = `§9[Discord] §r${message.author.username}: ${message.content}`;
+
+		message.mentions.users.forEach(u =>{
+			let filter = new RegExp(`<@${u.id}>`, "g");
+			processedMessage = processedMessage.replace(filter, `@${u.username}`);
+		});
+
+		message.attachments.forEach(a => {
+			processedMessage = processedMessage + " " + a.url;
+		});
+
+		encoder.encodeMessage(clients, processedMessage);	
+		console.log(processedMessage.replace(/§+[\w]/g, ''));
+
+	} catch (error) {
+		console.error('Error: ', error);
+	}
 });
 
 server.listen(port, host);

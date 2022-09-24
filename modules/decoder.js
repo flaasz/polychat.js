@@ -9,6 +9,8 @@ const {
     EmbedBuilder
 } = require('discord.js');
 
+const encode = require("./encoder.js");
+
 const embed = new EmbedBuilder();
 
 
@@ -32,7 +34,7 @@ module.exports = {
 
             try {
                 var unwrapped = wrap.decode(data);
-                console.log(unwrapped);
+                //console.log(unwrapped);
 
             } catch (e) {
                 console.log(data.length);
@@ -56,7 +58,7 @@ module.exports = {
                 var pc = root.lookupType(type);
 
                 var decoded = pc.decode(unwrapped.value);
-                console.log(decoded);
+                //console.log(decoded);
 
                 if (type == "polychat.ServerInfo") {
 
@@ -72,7 +74,7 @@ module.exports = {
                     serverInfo = Object.assign(serverInfo, newServerInfo);
 
                     console.log(`${decoded.serverId} server registered!`);
-                    console.log(serverInfo);
+                    //console.log(serverInfo);
 
                 }
 
@@ -89,7 +91,8 @@ module.exports = {
                     } else {
                         return console.log("Player changed status, but an error occured!");
                     }
-                    output.name = serverInfo[`[${decoded.serverId}]`].name;
+
+                    output.name = serverInfo[`${decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')}`].name;
                     output.avatar = `https://mc-heads.net/head/${decoded.playerUsername}`;
                     sendMessage(output);
 
@@ -103,6 +106,9 @@ module.exports = {
                     output.content = `${decoded.message.replace(/§+[\w]|\[(.*?)\]|<(.*?)\>/g, '')}`;
                     output.avatar = `https://mc-heads.net/head/${nick}`;
                     sendMessage(output);
+
+
+
                 }
 
                 if (type == "polychat.ServerStatus") {
