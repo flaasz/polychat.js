@@ -11,7 +11,7 @@ const {
 	token,
 	port,
 	host,
-	chatchannelid
+	chatchannelid,
 } = require('./config.json');
 
 const client = new Client({
@@ -47,72 +47,31 @@ for (const file of commandFiles) {
 	client.commands.set(command.data.name, command);
 }
 
-client.on('interactionCreate', async interaction => {
-	if (!interaction.isChatInputCommand()) return;
-
-	const command = client.commands.get(interaction.commandName);
-
-	if (!command) return;
-
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.error(error);
-		await interaction.reply({
-			content: 'There was an error while executing this command!',
-			ephemeral: true
-		});
-	}
-});
-
-
-
 /* CHAT SERVER */
 
-const encoder = require("./modules/encoder.js");
 const decoder = require("./modules/decoder.js");
 const net = require('net');
 
 
-var clients = [];
+
+client.serverData = new Array();
+client.ingameServerData = new Object();
 
 var server = net.createServer(function (socket) {
 	socket.name = socket.remoteAddress + ":" + socket.remotePort;
-	clients.push(socket);
+	client.serverData.push(socket);
+
+	//console.log(client);
 
 	socket.on('data', function (data) {
-		decoder.decode(data, socket, clients, client);
+		decoder.decode(data, socket, client);
 	});
 
-});
-
-client.on('messageCreate', message => {
-	try {
-
-		if (message.author.bot) return;
-		if (message.channel != chatchannelid) return;
-		//console.log(message);
-
-		let processedMessage = `§9[Discord] §r${message.author.username}: ${message.content}`;
-
-		message.mentions.users.forEach(u =>{
-			let filter = new RegExp(`<@${u.id}>`, "g");
-			processedMessage = processedMessage.replace(filter, `@${u.username}`);
-		});
-
-		message.attachments.forEach(a => {
-			processedMessage = processedMessage + " " + a.url;
-		});
-
-		encoder.encodeMessage(clients, processedMessage);	
-		console.log(processedMessage.replace(/§+[\w]/g, ''));
-
-	} catch (error) {
-		console.error('Error: ', error);
-	}
 });
 
 server.listen(port, host);
 console.log("Chat server online on port ", port, "!");
 client.login(token);
 console.log("App listening on port", port);
+
+//console.log(client);

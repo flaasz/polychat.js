@@ -14,11 +14,9 @@ const encode = require("./encoder.js");
 const embed = new EmbedBuilder();
 
 
-let serverInfo = {};
-
 module.exports = {
 
-    decode: async function (data, socket, clients, bot) {
+    decode: async function (data, socket, bot) {
         broadcast(data, socket);
 
         data = data.slice(4);
@@ -67,11 +65,13 @@ module.exports = {
                             name: decoded.serverName,
                             id: decoded.serverId,
                             ip: decoded.serverAddress,
-                            max: decoded.maxPlayers
+                            max: decoded.maxPlayers,
+                            status: "online",
+                            list: []
                         }
                     };
 
-                    serverInfo = Object.assign(serverInfo, newServerInfo);
+                    bot.ingameServerData = Object.assign(bot.ingameServerData, newServerInfo);
 
                     console.log(`${decoded.serverId} server registered!`);
                     //console.log(serverInfo);
@@ -81,18 +81,36 @@ module.exports = {
 
                 if (type == "polychat.ServerPlayerStatusChangedEvent") {
                     if (decoded.newPlayerStatus == 1) {
+
+                        bot.ingameServerData[decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')].list = decoded.newPlayersOnline.playerNames;
+
                         console.log(decoded.playerUsername, "joined the game!");
                         output.content = `**${decoded.playerUsername}** joined the game!`;
 
+                        //console.log(bot.ingameServerData);
+
+
                     } else if (decoded.newPlayerStatus == 2) {
+
+                        let playerList = decoded.newPlayersOnline.playerNames
+
+                        const playerIndex = playerList.indexOf(decoded.playerUsername);
+                        if (playerIndex > -1) { 
+                          playerList.splice(playerIndex, 1); 
+                        }
+
+                        bot.ingameServerData[decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')].list = playerList;
+
                         console.log(decoded.playerUsername, "left the game!");
                         output.content = `**${decoded.playerUsername}** left the game!`;
+
+                        //console.log(bot.ingameServerData);
 
                     } else {
                         return console.log("Player changed status, but an error occured!");
                     }
 
-                    output.name = serverInfo[`${decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')}`].name;
+                    output.name = bot.ingameServerData[`${decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')}`].name;
                     output.avatar = `https://mc-heads.net/head/${decoded.playerUsername}`;
                     sendMessage(output);
 
@@ -106,13 +124,19 @@ module.exports = {
                     output.content = `${decoded.message.replace(/§+[\w]|\[(.*?)\]|<(.*?)\>/g, '')}`;
                     output.avatar = `https://mc-heads.net/head/${nick}`;
                     sendMessage(output);
+                }
 
+                if (type == "polychat.ServerPlayersOnline") {
 
+                    console.log(`${decoded.serverId.replace(/§+[\w]/g, '')} list updated!`);
+                    bot.ingameServerData[decoded.serverId.replace(/§+[\w]/g, '')].list = decoded.playerNames;
 
+                    //console.log(bot.ingameServerData);
                 }
 
                 if (type == "polychat.ServerStatus") {
                     if (decoded.status == 1) {
+                        bot.ingameServerData[`[${decoded.serverId}]`].status = "online";
                         console.log(`${decoded.serverId} server started!`);
                             embed.setColor(0x00ff91);
                             embed.setAuthor({
@@ -121,6 +145,7 @@ module.exports = {
 
                     }
                     if (decoded.status == 2) {
+                        bot.ingameServerData[`[${decoded.serverId}]`].status = "offline";
                         console.log(`${decoded.serverId} server stopped!`);
                             embed.setColor(0xde1f5e);
                             embed.setAuthor({
@@ -129,6 +154,7 @@ module.exports = {
 
                     }
                     if (decoded.status == 3) {
+                        bot.ingameServerData[`[${decoded.serverId}]`].status = "crashed";
                         console.log(`${decoded.serverId} server crashed!`);
                             embed.setColor(0xde791f);
                             embed.setAuthor({
@@ -136,11 +162,8 @@ module.exports = {
                             });
 
                     }
-                    else {
-                        console.log(`${decoded.serverId} server changed status, but an error occured!`);
-                    }
 
-                    output.name = serverInfo[`[${decoded.serverId}]`].name;
+                    output.name = bot.ingameServerData[`[${decoded.serverId}]`].name;
                     output.avatar = botLogo;
                     sendEmbed(output, embed);
 
@@ -151,7 +174,7 @@ module.exports = {
         });
 
         function broadcast(message, sender) {
-            clients.forEach(function (client) {
+            bot.serverData.forEach(function (client) {
                 // Don't want to send it to sender
                 if (client === sender) return;
                 client.write(message);

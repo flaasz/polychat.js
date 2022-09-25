@@ -1,0 +1,25 @@
+{
+  "name": "polychat.js",
+  "version": "1.0.0",
+  "description": "A central server built to work with polychat2 mods/plugins.",
+  "main": "app.js",
+  "scripts": {
+    "setup": "npm install",
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flaszuu/polychat.js.git"
+  },
+  "author": "https://github.com/flaszuu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/flaszuu/polychat.js/issues"
+  },
+  "homepage": "https://github.com/flaszuu/polychat.js#readme",
+  "dependencies": {
+    "discord.js": "^14.5.0",
+    "protobufjs": "^7.1.2"
+  }
+}

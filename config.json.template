@@ -1,0 +1,10 @@
+{
+    "clientId": "id of the bot",
+    "guildId": "id of the server",
+    "chatchannelid": "id of the channel with integration",
+    "token": "bot token",
+    "port": 1234,
+    "host": "server ip",
+    "botLogo": "url to the image",
+    "commandChannels": ["channel1","can put as many as you like","putting just '*' allows all channels"]
+}
