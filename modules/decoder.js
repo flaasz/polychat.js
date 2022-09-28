@@ -17,8 +17,8 @@ const embed = new EmbedBuilder();
 module.exports = {
 
     decode: async function (data, socket, bot) {
-        broadcast(data, socket);
 
+        let dataToReturn = data;
         data = data.slice(4);
 
         //console.log(data);
@@ -34,12 +34,15 @@ module.exports = {
                 var unwrapped = wrap.decode(data);
                 //console.log(unwrapped);
 
+
             } catch (e) {
                 console.log(data.length);
 
                 return console.log(e);
 
             }
+
+            broadcast(dataToReturn, socket);
 
             var output = {
                 name: "",
@@ -218,6 +221,7 @@ module.exports = {
             } catch (e) {
                 console.log(e);
             }
+            
 
         });
 
