@@ -56,6 +56,7 @@ const net = require('net');
 
 client.serverData = new Array();
 client.ingameServerData = new Object();
+client.commandData = new Object();
 
 var server = net.createServer(function (socket) {
 	socket.name = socket.remoteAddress + ":" + socket.remotePort;
@@ -63,9 +64,15 @@ var server = net.createServer(function (socket) {
 
 	//console.log(client);
 
+	socket.on("error", (err) => {
+		console.log("Caught server socket error: ");
+		console.log(err.stack);
+	})
+
 	socket.on('data', function (data) {
 		decoder.decode(data, socket, client);
 	});
+
 
 });
 

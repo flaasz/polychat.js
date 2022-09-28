@@ -1,8 +1,8 @@
-
 const protobuf = require("protobufjs");
 
 const {
-    chatchannelid, botLogo
+    chatchannelid,
+    botLogo
 } = require("../config.json");
 
 const {
@@ -48,128 +48,176 @@ module.exports = {
                 bonus: "",
             };
 
-            protobuf.load("./protos/polychat.proto", async function (err, root) {
-                if (err) throw err;
+            try {
+                protobuf.load("./protos/polychat.proto", async function (err, root) {
+                    if (err) throw err;
 
-                let type = unwrapped.typeUrl.split("/").pop();
+                    let type = unwrapped.typeUrl.split("/").pop();
 
-                var pc = root.lookupType(type);
+                    var pc = root.lookupType(type);
 
-                var decoded = pc.decode(unwrapped.value);
-                //console.log(decoded);
+                    var decoded = pc.decode(unwrapped.value);
+                    //console.log(decoded);
 
-                if (type == "polychat.ServerInfo") {
+                    if (type == "polychat.ServerInfo") {
 
-                    let newServerInfo = {
-                        [`[${decoded.serverId}]`]: {
-                            name: decoded.serverName,
-                            id: decoded.serverId,
-                            ip: decoded.serverAddress,
-                            max: decoded.maxPlayers,
-                            status: "online",
-                            list: []
-                        }
-                    };
-
-                    bot.ingameServerData = Object.assign(bot.ingameServerData, newServerInfo);
-
-                    console.log(`${decoded.serverId} server registered!`);
-                    //console.log(serverInfo);
-
-                }
+                        let newServerInfo = {
+                            [`[${decoded.serverId}]`]: {
+                                name: decoded.serverName,
+                                id: decoded.serverId,
+                                ip: decoded.serverAddress,
+                                max: decoded.maxPlayers,
+                                status: "online",
+                                list: []
+                            }
+                        };
 
 
-                if (type == "polychat.ServerPlayerStatusChangedEvent") {
-                    if (decoded.newPlayerStatus == 1) {
+                        socket.serverId = decoded.serverId.toUpperCase();
+                        console.log(socket.name);
 
-                        bot.ingameServerData[decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')].list = decoded.newPlayersOnline.playerNames;
+                        //console.log(bot.serverData);
 
-                        console.log(decoded.playerUsername, "joined the game!");
-                        output.content = `**${decoded.playerUsername}** joined the game!`;
+                        bot.ingameServerData = Object.assign(bot.ingameServerData, newServerInfo);
 
-                        //console.log(bot.ingameServerData);
+                        console.log(`${decoded.serverId} server registered!`);
+                        //console.log(serverInfo);
 
-
-                    } else if (decoded.newPlayerStatus == 2) {
-
-                        let playerList = decoded.newPlayersOnline.playerNames
-
-                        const playerIndex = playerList.indexOf(decoded.playerUsername);
-                        if (playerIndex > -1) { 
-                          playerList.splice(playerIndex, 1); 
-                        }
-
-                        bot.ingameServerData[decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')].list = playerList;
-
-                        console.log(decoded.playerUsername, "left the game!");
-                        output.content = `**${decoded.playerUsername}** left the game!`;
-
-                        //console.log(bot.ingameServerData);
-
-                    } else {
-                        return console.log("Player changed status, but an error occured!");
                     }
 
-                    output.name = bot.ingameServerData[`${decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')}`].name;
-                    output.avatar = `https://mc-heads.net/head/${decoded.playerUsername}`;
-                    sendMessage(output);
 
-                }
+                    if (type == "polychat.ServerPlayerStatusChangedEvent") {
+                        if (decoded.newPlayerStatus == 1) {
 
-                if (type == "polychat.ChatMessage") {
-                    var nick = decoded.message.replace(/§+[\w]|<|>/g, '').split(' ')[1];
+                            bot.ingameServerData[decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')].list = decoded.newPlayersOnline.playerNames;
 
-                    console.log(decoded.message.replace(/§+[\w]/g, ''));
-                    output.name = `${nick} ${decoded.serverId.replace(/§+[\w]/g, '')}`;
-                    output.content = `${decoded.message.replace(/§+[\w]|\[(.*?)\]|<(.*?)\>/g, '')}`;
-                    output.avatar = `https://mc-heads.net/head/${nick}`;
-                    sendMessage(output);
-                }
+                            console.log(decoded.playerUsername, "joined the game!");
+                            output.content = `**${decoded.playerUsername}** joined the game!`;
 
-                if (type == "polychat.ServerPlayersOnline") {
+                            //console.log(bot.ingameServerData);
 
-                    console.log(`${decoded.serverId.replace(/§+[\w]/g, '')} list updated!`);
-                    bot.ingameServerData[decoded.serverId.replace(/§+[\w]/g, '')].list = decoded.playerNames;
 
-                    //console.log(bot.ingameServerData);
-                }
+                        } else if (decoded.newPlayerStatus == 2) {
 
-                if (type == "polychat.ServerStatus") {
-                    if (decoded.status == 1) {
-                        bot.ingameServerData[`[${decoded.serverId}]`].status = "online";
-                        console.log(`${decoded.serverId} server started!`);
+                            let playerList = decoded.newPlayersOnline.playerNames
+
+                            const playerIndex = playerList.indexOf(decoded.playerUsername);
+                            if (playerIndex > -1) {
+                                playerList.splice(playerIndex, 1);
+                            }
+
+                            bot.ingameServerData[decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')].list = playerList;
+
+                            console.log(decoded.playerUsername, "left the game!");
+                            output.content = `**${decoded.playerUsername}** left the game!`;
+
+                            //console.log(bot.ingameServerData);
+
+                        } else {
+                            return console.log("Player changed status, but an error occured!");
+                        }
+
+                        output.name = bot.ingameServerData[`${decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')}`].name;
+                        output.avatar = `https://mc-heads.net/head/${decoded.playerUsername}`;
+                        sendMessage(output);
+
+                    }
+
+                    if (type == "polychat.ChatMessage") {
+                        var nick = decoded.message.replace(/§+[\w]|<|>/g, '').split(' ')[1];
+
+                        console.log(decoded.message.replace(/§+[\w]/g, ''));
+                        output.name = `${nick} ${decoded.serverId.replace(/§+[\w]/g, '')}`;
+                        output.content = `${decoded.message.replace(/§+[\w]|\[(.*?)\]|<(.*?)\>/g, '')}`;
+                        output.avatar = `https://mc-heads.net/head/${nick}`;
+                        sendMessage(output);
+                    }
+
+                    if (type == "polychat.ServerPlayersOnline") {
+
+                        console.log(`${decoded.serverId.replace(/§+[\w]/g, '')} list updated!`);
+                        try {
+                            bot.ingameServerData[decoded.serverId.replace(/§+[\w]/g, '')].list = decoded.playerNames;
+                        } catch (e) {
+                            console.log(e);
+                        }
+
+                        //console.log(bot.ingameServerData);
+                    }
+
+                    if (type == "polychat.ServerStatus") {
+                        if (decoded.status == 1) {
+                            try {
+                                bot.ingameServerData[`[${decoded.serverId}]`].status = "online"
+                            } catch (e) {
+                                console.log(e);
+                            };
+                            console.log(`${decoded.serverId} server started!`);
                             embed.setColor(0x00ff91);
                             embed.setAuthor({
                                 name: 'Server started!'
                             });
 
-                    }
-                    if (decoded.status == 2) {
-                        bot.ingameServerData[`[${decoded.serverId}]`].status = "offline";
-                        console.log(`${decoded.serverId} server stopped!`);
+                        }
+                        if (decoded.status == 2) {
+                            try {
+                                bot.ingameServerData[`[${decoded.serverId}]`].status = "offline"
+                            } catch (e) {
+                                console.log(e);
+                            };
+                            console.log(`${decoded.serverId} server stopped!`);
                             embed.setColor(0xde1f5e);
                             embed.setAuthor({
                                 name: 'Server stopped!'
                             });
 
-                    }
-                    if (decoded.status == 3) {
-                        bot.ingameServerData[`[${decoded.serverId}]`].status = "crashed";
-                        console.log(`${decoded.serverId} server crashed!`);
+                        }
+                        if (decoded.status == 3) {
+                            try {
+                                bot.ingameServerData[`[${decoded.serverId}]`].status = "crashed"
+                            } catch (e) {
+                                console.log(e);
+                            };
+                            console.log(`${decoded.serverId} server crashed!`);
                             embed.setColor(0xde791f);
                             embed.setAuthor({
                                 name: 'Server crashed!'
                             });
 
+                        }
+
+                        try {
+                            output.name = bot.ingameServerData[`[${decoded.serverId}]`].name;
+                        } catch (e) {
+                            console.log(e);
+                            output.name = `[${decoded.serverId}] Server`;
+                        }
+                        output.avatar = botLogo;
+                        sendEmbed(output, embed);
+
                     }
 
-                    output.name = bot.ingameServerData[`[${decoded.serverId}]`].name;
-                    output.avatar = botLogo;
-                    sendEmbed(output, embed);
+                    if (type == "polychat.GenericCommandResult") {
 
-                }
+                        //console.log(bot);
 
-            });
+                        try {
+                            let resumedInteraction = bot.commandData[`[${decoded.discordChannelId}]`].interaction;
+                            resumedInteraction.editReply(decoded.commandOutput);
+                            delete bot.commandData[`[${decoded.discordChannelId}]`];
+    
+                        } catch (e) {
+                            console.log(e);
+                        }
+
+
+
+                    }
+
+                });
+            } catch (e) {
+                console.log(e);
+            }
 
         });
 
