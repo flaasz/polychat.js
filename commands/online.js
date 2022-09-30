@@ -11,23 +11,42 @@ module.exports = {
         //console.log(online.client.ingameServerData);
 
         const embed = new EmbedBuilder()
-            .setColor(0x0099FF)
-            .setTitle('Players Online');
+            .setColor(0x9c59b6)
+            .setTimestamp()
+            .setFooter({
+                text: "To see all available servers use /servers"
+            });
 
+        let onlineCount = 0;
+        let serverCount = 0;
 
         Object.keys(online.client.ingameServerData).forEach(key => {
 
-			let onlinePlayerCount = online.client.ingameServerData[key].list.length;
+            serverCount++;
 
-			if (onlinePlayerCount > 0) {
+            let onlinePlayerCount = online.client.ingameServerData[key].list.length;
 
-				embed.addFields({
-					name: `**${key}** ${online.client.ingameServerData[key].name}`,
-					value: `**${onlinePlayerCount}/${online.client.ingameServerData[key].max}** ${online.client.ingameServerData[key].list.toString()}\n${online.client.ingameServerData[key].ip}`
-				})	
-			}
+            onlineCount += onlinePlayerCount;
+
+            if (onlinePlayerCount > 0) {
+
+                embed.addFields({
+                    name: `**${key}** ${online.client.ingameServerData[key].name}`,
+                    value: `**${onlinePlayerCount}/${online.client.ingameServerData[key].max}** ${online.client.ingameServerData[key].list.toString().replace(/,/g, ", ")}\n${online.client.ingameServerData[key].ip}`
+                });
+            }
 
         });
+
+        if (onlineCount == 0) {
+            embed.addFields({
+                name: `**Oops**`,
+                value: `Looks like the servers are empty :c`
+            });
+        }
+
+        embed.setTitle(`Players online: ${onlineCount}`);
+        embed.setDescription(`Servers online: ${serverCount}`);
 
         return online.reply({
             embeds: [embed]

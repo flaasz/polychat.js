@@ -25,7 +25,7 @@ module.exports = {
             });
 
             message.attachments.forEach(a => {
-                processedMessage = processedMessage + " " + a.url;
+                processedMessage = processedMessage + " [Attachment]";
             });
 
             encoder.encodeMessage(message.client.serverData, processedMessage);

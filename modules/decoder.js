@@ -102,7 +102,7 @@ module.exports = {
 
                         } else if (decoded.newPlayerStatus == 2) {
 
-                            let playerList = decoded.newPlayersOnline.playerNames
+                            let playerList = decoded.newPlayersOnline.playerNames;
 
                             const playerIndex = playerList.indexOf(decoded.playerUsername);
                             if (playerIndex > -1) {
@@ -143,6 +143,7 @@ module.exports = {
                             bot.ingameServerData[decoded.serverId.replace(/§+[\w]/g, '')].list = decoded.playerNames;
                         } catch (e) {
                             console.log(e);
+                            socket.end();
                         }
 
                         //console.log(bot.ingameServerData);
@@ -151,10 +152,11 @@ module.exports = {
                     if (type == "polychat.ServerStatus") {
                         if (decoded.status == 1) {
                             try {
-                                bot.ingameServerData[`[${decoded.serverId}]`].status = "online"
+                                bot.ingameServerData[`[${decoded.serverId}]`].status = "online";
                             } catch (e) {
                                 console.log(e);
-                            };
+                                socket.end();
+                            }
                             console.log(`${decoded.serverId} server started!`);
                             embed.setColor(0x00ff91);
                             embed.setAuthor({
@@ -164,10 +166,11 @@ module.exports = {
                         }
                         if (decoded.status == 2) {
                             try {
-                                bot.ingameServerData[`[${decoded.serverId}]`].status = "offline"
+                                bot.ingameServerData[`[${decoded.serverId}]`].status = "offline";
                             } catch (e) {
                                 console.log(e);
-                            };
+                                socket.end();
+                            }
                             console.log(`${decoded.serverId} server stopped!`);
                             embed.setColor(0xde1f5e);
                             embed.setAuthor({
@@ -177,10 +180,11 @@ module.exports = {
                         }
                         if (decoded.status == 3) {
                             try {
-                                bot.ingameServerData[`[${decoded.serverId}]`].status = "crashed"
+                                bot.ingameServerData[`[${decoded.serverId}]`].status = "crashed";
                             } catch (e) {
                                 console.log(e);
-                            };
+                                socket.end();
+                            }
                             console.log(`${decoded.serverId} server crashed!`);
                             embed.setColor(0xde791f);
                             embed.setAuthor({

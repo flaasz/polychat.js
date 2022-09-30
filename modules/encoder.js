@@ -66,7 +66,7 @@ module.exports = {
     },
     encodeCommand: async function (interaction, encodedCommand) {
 
-        let toSend = interaction.client.serverData.find(o => o.serverId === encodedCommand.serverId)
+        let toSend = interaction.client.serverData.find(o => o.serverId === encodedCommand.serverId);
 
         if(!toSend) return interaction.editReply("Wrong Server ID!");
 
