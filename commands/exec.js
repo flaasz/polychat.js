@@ -15,7 +15,7 @@ module.exports = {
             .setDescription('Server ID')
             .setRequired(true))
         .addStringOption(command =>
-            option.setName('command')
+            command.setName('command')
             .setDescription('Command to run')
             .setRequired(true)),
     async execute(interaction) {
@@ -30,7 +30,7 @@ module.exports = {
         interaction.client.commandData = Object.assign(interaction.client.commandData, newCommandInteraction);
 
         console.log(interaction.options.getString("server"));
-        let stringifyCommand = command.join(" ");
+        let stringifyCommand = interaction.options.getString("command").split(" ");
 
         //console.log(interaction);
 
