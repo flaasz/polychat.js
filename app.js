@@ -80,4 +80,8 @@ console.log("Chat server online on port ", port, "!");
 client.login(token);
 console.log("App listening on port", port);
 
+require('crashreporter').configure({
+    outDir: "./crash-logs", 
+    exitOnCrash: true
+});
 //console.log(client);
