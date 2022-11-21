@@ -41,32 +41,24 @@ module.exports = {
                 //console.log(anytype.decode(data));
                 //console.log(data.length);
 
-
                 var datalen = new Buffer.alloc(4);
                 datalen.writeUInt32BE(data.length, 0);
 
                 data = Buffer.concat([datalen, data]);
 
-
-
                 //console.log("datalen: ",data);
-
-
 
                 return clients.forEach(function (client) {
                     client.write(data);
                 });
 
             });
-
-
-
         });
 
     },
     encodeCommand: async function (interaction, encodedCommand) {
 
-        let toSend = interaction.client.serverData.find(o => o.serverId === encodedCommand.serverId);
+        let toSend = interaction.client.serverData.reverse().find(o => o.serverId === encodedCommand.serverId);
 
         if(!toSend) return interaction.editReply("Wrong Server ID!");
 
@@ -109,19 +101,16 @@ module.exports = {
                 //console.log(anytype.decode(data));
                 //console.log(data.length);
 
-
                 var datalen = new Buffer.alloc(4);
                 datalen.writeUInt32BE(data.length, 0);
 
                 data = Buffer.concat([datalen, data]);
 
                 //console.log(client.serverData);
-                console.log(encodedCommand);
+                //console.log(encodedCommand);
 
                 return toSend.write(data);
-
             });
-
         });
     }
 };

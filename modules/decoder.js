@@ -29,17 +29,14 @@ module.exports = {
 
             var wrap = root.lookupType("google.protobuf.Any");
 
-
             try {
                 var unwrapped = wrap.decode(data);
                 //console.log(unwrapped);
-
 
             } catch (e) {
                 console.log(data.length);
 
                 return console.log(e);
-
             }
 
             broadcast(dataToReturn, socket);
@@ -75,7 +72,6 @@ module.exports = {
                             }
                         };
 
-
                         socket.serverId = decoded.serverId.toUpperCase();
                         console.log(socket.name);
 
@@ -85,9 +81,7 @@ module.exports = {
 
                         console.log(`${decoded.serverId} server registered!`);
                         //console.log(serverInfo);
-
                     }
-
 
                     if (type == "polychat.ServerPlayerStatusChangedEvent") {
                         if (decoded.newPlayerStatus == 1) {
@@ -98,7 +92,6 @@ module.exports = {
                             output.content = `**${decoded.playerUsername}** joined the game!`;
 
                             //console.log(bot.ingameServerData);
-
 
                         } else if (decoded.newPlayerStatus == 2) {
 
@@ -123,7 +116,6 @@ module.exports = {
                         output.name = bot.ingameServerData[`${decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')}`].name;
                         output.avatar = `https://mc-heads.net/head/${decoded.playerUsername}`;
                         sendMessage(output);
-
                     }
 
                     if (type == "polychat.ChatMessage") {
@@ -131,7 +123,6 @@ module.exports = {
                         var nick = nickstr.substring(nickstr.indexOf("<") + 1, nickstr.lastIndexOf(">"));
 
                         console.log(decoded.message.replace(/§+[\w]/g, ''));
-                        console.log(nick.split(" "));
                         output.name = `${nick} ${decoded.serverId.replace(/§+[\w]/g, '')}`;
                         output.content = `${decoded.message.replace(/§+[\w]|\[(.*?)\]|<(.*?)\>/g, '')}`;
                         output.avatar = `https://mc-heads.net/head/${nick.split(" ")[nick.split(" ").length - 1]}`;
@@ -164,7 +155,6 @@ module.exports = {
                             embed.setAuthor({
                                 name: 'Server started!'
                             });
-
                         }
                         if (decoded.status == 2) {
                             try {
@@ -178,7 +168,6 @@ module.exports = {
                             embed.setAuthor({
                                 name: 'Server stopped!'
                             });
-
                         }
                         if (decoded.status == 3) {
                             try {
@@ -192,7 +181,6 @@ module.exports = {
                             embed.setAuthor({
                                 name: 'Server crashed!'
                             });
-
                         }
 
                         try {
@@ -218,17 +206,12 @@ module.exports = {
                         } catch (e) {
                             console.log(e);
                         }
-
-
-
                     }
 
                 });
             } catch (e) {
                 console.log(e);
             }
-
-
         });
 
         function broadcast(message, sender) {
