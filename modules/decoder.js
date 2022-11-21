@@ -127,12 +127,14 @@ module.exports = {
                     }
 
                     if (type == "polychat.ChatMessage") {
-                        var nick = decoded.message.replace(/§+[\w]|<|>/g, '').split(' ')[1];
+                        var nickstr = decoded.message.replace(/§+[\w]/g, '');
+                        var nick = nickstr.substring(nickstr.indexOf("<") + 1, nickstr.lastIndexOf(">"));
 
                         console.log(decoded.message.replace(/§+[\w]/g, ''));
+                        console.log(nick.split(" "));
                         output.name = `${nick} ${decoded.serverId.replace(/§+[\w]/g, '')}`;
                         output.content = `${decoded.message.replace(/§+[\w]|\[(.*?)\]|<(.*?)\>/g, '')}`;
-                        output.avatar = `https://mc-heads.net/head/${nick}`;
+                        output.avatar = `https://mc-heads.net/head/${nick.split(" ")[nick.split(" ").length - 1]}`;
                         sendMessage(output);
                     }
 
@@ -210,9 +212,9 @@ module.exports = {
 
                         try {
                             let resumedInteraction = bot.commandData[`[${decoded.discordChannelId}]`].interaction;
-                            resumedInteraction.editReply(decoded.commandOutput);
+                            resumedInteraction.editReply(decoded.commandOutput.replace(/§+[\w]/g, ''));
                             delete bot.commandData[`[${decoded.discordChannelId}]`];
-    
+
                         } catch (e) {
                             console.log(e);
                         }
@@ -225,7 +227,7 @@ module.exports = {
             } catch (e) {
                 console.log(e);
             }
-            
+
 
         });
 
