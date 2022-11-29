@@ -6,5 +6,9 @@
     "port": 1234,
     "host": "server ip",
     "botLogo": "url to the image",
-    "commandChannels": ["channel1","can put as many as you like","putting just '*' allows all channels"]
+    "commandChannels": ["channel1","can put as many as you like","putting just '*' allows all channels"],
+    "enableAnnouncer": true,
+    "announcerTimer": 60, //minutes
+    "announementList": ["hi! this is a test announcement!", "hi! this is a test"]
+
 }

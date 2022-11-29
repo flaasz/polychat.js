@@ -81,7 +81,13 @@ client.login(token);
 console.log("App listening on port", port);
 
 require('crashreporter').configure({
-    outDir: "./crash-logs", 
-    exitOnCrash: true
+	outDir: "./crash-logs",
+	exitOnCrash: true
 });
 //console.log(client);
+
+
+const announcer = require("./modules/announcer.js");
+announcer.startAnnouncer(client.serverData);
+
+

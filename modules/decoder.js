@@ -119,12 +119,11 @@ module.exports = {
                     }
 
                     if (type == "polychat.ChatMessage") {
-                        var nickstr = decoded.message.replace(/§+[\w]/g, '');
-                        var nick = nickstr.substring(nickstr.indexOf("<") + 1, nickstr.lastIndexOf(">"));
+                        var nick = decoded.message.replace(/§+[\w]/g, '').match(/<(.*?)>/)[1];
 
                         console.log(decoded.message.replace(/§+[\w]/g, ''));
                         output.name = `${nick} ${decoded.serverId.replace(/§+[\w]/g, '')}`;
-                        output.content = `${decoded.message.replace(/§+[\w]|\[(.*?)\]|<(.*?)\>/g, '')}`;
+                        output.content = `${decoded.message.replace(/§+[\w]/g, '').replace(/\[(.*?)\]\s<(.*?)\>\s/, '')}`;
                         output.avatar = `https://mc-heads.net/head/${nick.split(" ")[nick.split(" ").length - 1]}`;
                         sendMessage(output);
                     }

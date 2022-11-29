@@ -56,6 +56,60 @@ module.exports = {
         });
 
     },
+    encodeAnnouncement: async function (clients, encodedAnnouncement) {
+        protobuf.load("./protos/polychat.proto", function (err, root) {
+            if (err)
+                throw err;
+
+            let newMessage = {
+                serverId: '[INFO]',
+                message: encodedAnnouncement,
+                messageOffset: encodedAnnouncement.length
+            };
+
+            var type = root.lookupType("polychat.ChatMessage");
+
+            var payload = type.create(newMessage);
+
+            //console.log(newMessage);
+
+            var buffer = type.encode(payload).finish();
+
+            protobuf.load("./protos/any.proto", function (err, root) {
+                if (err)
+                    throw err;
+
+                let encodedAnnouncement = {
+                    typeUrl: 'type.googleapis.com/polychat.ChatMessage',
+                    value: buffer
+                };
+
+                //console.log(encodedAnnouncement);
+
+                var anytype = root.lookupType("google.protobuf.Any");
+
+                var encodedPayload = anytype.create(encodedAnnouncement);
+
+                var data = anytype.encode(encodedPayload).finish();
+
+                //console.log(anytype.decode(data));
+                //console.log(data.length);
+
+                var datalen = new Buffer.alloc(4);
+                datalen.writeUInt32BE(data.length, 0);
+
+                data = Buffer.concat([datalen, data]);
+
+                //console.log("datalen: ",data);
+
+                return clients.forEach(function (client) {
+                    client.write(data);
+                });
+
+            });
+        });
+
+    },
     encodeCommand: async function (interaction, encodedCommand) {
 
         let toSend = interaction.client.serverData.reverse().find(o => o.serverId === encodedCommand.serverId);
@@ -90,7 +144,7 @@ module.exports = {
                     value: buffer
                 };
 
-                //console.log(encodedMessage);
+                //console.log(encodedAnnouncement);
 
                 var anytype = root.lookupType("google.protobuf.Any");
 
