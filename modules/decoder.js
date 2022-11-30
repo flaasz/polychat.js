@@ -32,14 +32,10 @@ module.exports = {
             try {
                 var unwrapped = wrap.decode(data);
                 //console.log(unwrapped);
-
             } catch (e) {
                 console.log(data.length);
-
                 return console.log(e);
             }
-
-            broadcast(dataToReturn, socket);
 
             var output = {
                 name: "",
@@ -54,7 +50,15 @@ module.exports = {
 
                     let type = unwrapped.typeUrl.split("/").pop();
 
-                    var pc = root.lookupType(type);
+                    let pc;
+
+                    try {
+                        pc = root.lookupType(type);
+                    } catch (e) {        
+                        return console.log(e);
+                    }
+
+                    broadcast(dataToReturn, socket);
 
                     var decoded = pc.decode(unwrapped.value);
                     //console.log(decoded);
