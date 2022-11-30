@@ -2,16 +2,17 @@ require("./deploy-commands.js");
 
 const fs = require('node:fs');
 const path = require('node:path');
+
 const {
 	Client,
 	Collection,
 	GatewayIntentBits
 } = require('discord.js');
+
 const {
 	token,
 	port,
 	host,
-	chatchannelid,
 } = require('./config.json');
 
 const client = new Client({
@@ -22,7 +23,6 @@ const client = new Client({
 		GatewayIntentBits.GuildMembers,
 	]
 });
-
 
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
@@ -52,8 +52,6 @@ for (const file of commandFiles) {
 const decoder = require("./modules/decoder.js");
 const net = require('net');
 
-
-
 client.serverData = [];
 client.ingameServerData = {};
 client.commandData = {};
@@ -72,22 +70,17 @@ var server = net.createServer(function (socket) {
 	socket.on('data', function (data) {
 		decoder.decode(data, socket, client);
 	});
+});
 
+require("./modules/announcer.js").startAnnouncer(client.serverData);
+
+require('crashreporter').configure({
+	outDir: "./crash-logs",
+	exitOnCrash: true
 });
 
 server.listen(port, host);
 console.log("Chat server online on port ", port, "!");
 client.login(token);
 console.log("App listening on port", port);
-
-require('crashreporter').configure({
-	outDir: "./crash-logs",
-	exitOnCrash: true
-});
-//console.log(client);
-
-
-const announcer = require("./modules/announcer.js");
-announcer.startAnnouncer(client.serverData);
-
 

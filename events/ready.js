@@ -30,11 +30,11 @@ module.exports = {
                 console.log(`No webhooks were found so I made one!`);
             }
 
-            await webhook.send({
+            /*await webhook.send({
                 username: client.username,
                 avatarURL: botLogo,
                 embeds: [embed],
-            });
+            });*/
         } catch (error) {
             console.error('Error trying to send: ', error);
         }

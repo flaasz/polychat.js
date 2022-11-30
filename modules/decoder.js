@@ -9,10 +9,7 @@ const {
     EmbedBuilder
 } = require('discord.js');
 
-const encode = require("./encoder.js");
-
 const embed = new EmbedBuilder();
-
 
 module.exports = {
 
@@ -54,7 +51,7 @@ module.exports = {
 
                     try {
                         pc = root.lookupType(type);
-                    } catch (e) {        
+                    } catch (e) {
                         return console.log(e);
                     }
 
@@ -194,7 +191,6 @@ module.exports = {
                         }
                         output.avatar = botLogo;
                         sendEmbed(output, embed);
-
                     }
 
                     if (type == "polychat.GenericCommandResult") {
@@ -210,7 +206,6 @@ module.exports = {
                             console.log(e);
                         }
                     }
-
                 });
             } catch (e) {
                 console.log(e);
@@ -267,7 +262,5 @@ module.exports = {
                 console.error('Error trying to send: ', error);
             }
         }
-
-
     }
 };
