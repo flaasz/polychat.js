@@ -5,6 +5,7 @@ const {
 const {
     chatchannelid, botLogo
 } = require("../config.json");
+const logger = require('../modules/logger');
 
 
 module.exports = {
@@ -15,7 +16,7 @@ module.exports = {
             .setTitle('Bot Online')
             .setColor(0x00FFFF);
 
-        console.log(`Ready! Logged in as ${client.user.tag}`);
+        logger.info(`Ready! Logged in as ${client.user.tag}`);
         const channel = client.channels.cache.get(chatchannelid);
         try {
             const webhooks = await channel.fetchWebhooks();
@@ -27,7 +28,7 @@ module.exports = {
                         avatar: botLogo,
                     })
                     .catch(console.error);
-                console.log(`No webhooks were found so I made one!`);
+                logger.info(`No webhooks were found so I made one!`);
             }
 
             /*await webhook.send({
@@ -36,7 +37,7 @@ module.exports = {
                 embeds: [embed],
             });*/
         } catch (error) {
-            console.error('Error trying to send: ', error);
+            logger.error('Error trying to send: ', error);
         }
 
     },

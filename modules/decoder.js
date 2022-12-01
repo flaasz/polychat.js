@@ -1,4 +1,5 @@
 const protobuf = require("protobufjs");
+const logger = require("./logger.js");
 
 const {
     chatchannelid,
@@ -30,8 +31,7 @@ module.exports = {
                 var unwrapped = wrap.decode(data);
                 //console.log(unwrapped);
             } catch (e) {
-                console.log(data.length);
-                return console.log(e);
+                return logger.error(e);
             }
 
             var output = {
@@ -47,18 +47,21 @@ module.exports = {
 
                     let type = unwrapped.typeUrl.split("/").pop();
 
-                    let pc;
+                    let pc, decoded;
 
                     try {
                         pc = root.lookupType(type);
                     } catch (e) {
-                        return console.log(e);
+                        return logger.error(e);
                     }
 
-                    broadcast(dataToReturn, socket);
+                    try {
+                        decoded = pc.decode(unwrapped.value);
+                    } catch (e) {
+                        return logger.error(e);
+                    }
 
-                    var decoded = pc.decode(unwrapped.value);
-                    //console.log(decoded);
+                    broadcast(dataToReturn, socket); 
 
                     if (type == "polychat.ServerInfo") {
 
@@ -74,13 +77,13 @@ module.exports = {
                         };
 
                         socket.serverId = decoded.serverId.toUpperCase();
-                        console.log(socket.name);
+                        logger.info(socket.name);
 
                         //console.log(bot.serverData);
 
                         bot.ingameServerData = Object.assign(bot.ingameServerData, newServerInfo);
 
-                        console.log(`${decoded.serverId} server registered!`);
+                        logger.info(`${decoded.serverId} server registered!`);
                         //console.log(serverInfo);
                     }
 
@@ -89,7 +92,7 @@ module.exports = {
 
                             bot.ingameServerData[decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')].list = decoded.newPlayersOnline.playerNames;
 
-                            console.log(decoded.playerUsername, "joined the game!");
+                            logger.chat(`${decoded.playerUsername} joined the game!`);
                             output.content = `**${decoded.playerUsername}** joined the game!`;
 
                             //console.log(bot.ingameServerData);
@@ -105,13 +108,13 @@ module.exports = {
 
                             bot.ingameServerData[decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')].list = playerList;
 
-                            console.log(decoded.playerUsername, "left the game!");
+                            logger.chat(`${decoded.playerUsername} left the game!`);
                             output.content = `**${decoded.playerUsername}** left the game!`;
 
                             //console.log(bot.ingameServerData);
 
                         } else {
-                            return console.log("Player changed status, but an error occured!");
+                            return logger.error("Player changed status, but an error occured!");
                         }
 
                         output.name = bot.ingameServerData[`${decoded.newPlayersOnline.serverId.replace(/§+[\w]/g, '')}`].name;
@@ -122,7 +125,7 @@ module.exports = {
                     if (type == "polychat.ChatMessage") {
                         var nick = decoded.message.replace(/§+[\w]/g, '').match(/<(.*?)>/)[1];
 
-                        console.log(decoded.message.replace(/§+[\w]/g, ''));
+                        logger.chat(decoded.message);
                         output.name = `${nick} ${decoded.serverId.replace(/§+[\w]/g, '')}`;
                         output.content = `${decoded.message.replace(/§+[\w]/g, '').replace(/\[(.*?)\]\s<(.*?)\>\s/, '')}`;
                         output.avatar = `https://mc-heads.net/head/${nick.split(" ")[nick.split(" ").length - 1]}`;
@@ -131,11 +134,11 @@ module.exports = {
 
                     if (type == "polychat.ServerPlayersOnline") {
 
-                        console.log(`${decoded.serverId.replace(/§+[\w]/g, '')} list updated!`);
+                        logger.info(`${decoded.serverId.replace(/§+[\w]/g, '')} list updated!`);
                         try {
                             bot.ingameServerData[decoded.serverId.replace(/§+[\w]/g, '')].list = decoded.playerNames;
                         } catch (e) {
-                            console.log(e);
+                            logger.error(e);
                             socket.end();
                         }
 
@@ -147,10 +150,10 @@ module.exports = {
                             try {
                                 bot.ingameServerData[`[${decoded.serverId}]`].status = "online";
                             } catch (e) {
-                                console.log(e);
+                                logger.error(e);
                                 socket.end();
                             }
-                            console.log(`${decoded.serverId} server started!`);
+                            logger.info(`${decoded.serverId} server started!`);
                             embed.setColor(0x00ff91);
                             embed.setAuthor({
                                 name: 'Server started!'
@@ -160,10 +163,10 @@ module.exports = {
                             try {
                                 bot.ingameServerData[`[${decoded.serverId}]`].status = "offline";
                             } catch (e) {
-                                console.log(e);
+                                logger.error(e);
                                 socket.end();
                             }
-                            console.log(`${decoded.serverId} server stopped!`);
+                            logger.info(`${decoded.serverId} server stopped!`);
                             embed.setColor(0xde1f5e);
                             embed.setAuthor({
                                 name: 'Server stopped!'
@@ -173,10 +176,10 @@ module.exports = {
                             try {
                                 bot.ingameServerData[`[${decoded.serverId}]`].status = "crashed";
                             } catch (e) {
-                                console.log(e);
+                                logger.error(e);
                                 socket.end();
                             }
-                            console.log(`${decoded.serverId} server crashed!`);
+                            logger.warn(`${decoded.serverId} server crashed!`);
                             embed.setColor(0xde791f);
                             embed.setAuthor({
                                 name: 'Server crashed!'
@@ -186,7 +189,7 @@ module.exports = {
                         try {
                             output.name = bot.ingameServerData[`[${decoded.serverId}]`].name;
                         } catch (e) {
-                            console.log(e);
+                            logger.error(e);
                             output.name = `[${decoded.serverId}] Server`;
                         }
                         output.avatar = botLogo;
@@ -203,12 +206,12 @@ module.exports = {
                             delete bot.commandData[`[${decoded.discordChannelId}]`];
 
                         } catch (e) {
-                            console.log(e);
+                            logger.error(e);
                         }
                     }
                 });
             } catch (e) {
-                console.log(e);
+                logger.error(e);
             }
         });
 
@@ -229,7 +232,7 @@ module.exports = {
                 const webhook = webhooks.find(wh => wh.token);
 
                 if (!webhook) {
-                    return console.log('Error fetching a webhook! Restart the bot to fix that issue.');
+                    return logger.error('Error fetching a webhook! Restart the bot to fix that issue.');
                 }
 
                 await webhook.send({
@@ -238,7 +241,7 @@ module.exports = {
                     avatarURL: output.avatar,
                 });
             } catch (error) {
-                console.error('Error trying to send: ', error);
+                logger.error('Error trying to send: ', error);
             }
         }
 
@@ -249,7 +252,7 @@ module.exports = {
                 const webhook = webhooks.find(wh => wh.token);
 
                 if (!webhook) {
-                    return console.log('Error fetching a webhook! Restart the bot to fix that issue.');
+                    return logger.error('Error fetching a webhook! Restart the bot to fix that issue.');
                 }
 
                 await webhook.send({
@@ -259,7 +262,7 @@ module.exports = {
                     embeds: [embed]
                 });
             } catch (error) {
-                console.error('Error trying to send: ', error);
+                logger.error('Error trying to send: ', error);
             }
         }
     }

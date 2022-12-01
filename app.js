@@ -2,6 +2,7 @@ require("./deploy-commands.js");
 
 const fs = require('node:fs');
 const path = require('node:path');
+const logger = require("./modules/logger.js");
 
 const {
 	Client,
@@ -63,8 +64,8 @@ var server = net.createServer(function (socket) {
 	//console.log(client);
 
 	socket.on("error", (err) => {
-		console.log("Caught server socket error: ");
-		console.log(err.stack);
+		logger.error("Caught server socket error: ");
+		logger.error(err.stack);
 	});
 
 	socket.on('data', function (data) {
@@ -80,7 +81,7 @@ require('crashreporter').configure({
 });
 
 server.listen(port, host);
-console.log("Chat server online on port ", port, "!");
+logger.info("Chat server online on port ",port,"!");
 client.login(token);
-console.log("App listening on port", port);
+logger.info("App listening on port", port);
 

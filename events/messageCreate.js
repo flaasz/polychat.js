@@ -3,6 +3,7 @@ const encoder = require("../modules/encoder.js");
 const {
     chatchannelid
 } = require('../config.json');
+const logger = require("../modules/logger.js");
 
 module.exports = {
     name: 'messageCreate',
@@ -29,10 +30,10 @@ module.exports = {
             });
 
             encoder.encodeMessage(message.client.serverData, processedMessage);
-            console.log(processedMessage.replace(/§+[\w]/g, ''));
+            logger.chat(processedMessage);
 
         } catch (error) {
-            console.error('Error: ', error);
+            logger.error('Error: ', error);
         }
 
     },
