@@ -75,22 +75,29 @@ function date() {
 }
 
 function colorize(message) {
-    return message
-    .replace(/§4/g,c.fg.red)
-    .replace(/§c/g,c.fg.crimson)
-    .replace(/§6/g,c.fg.yellow)
-    .replace(/§e/g,c.fg.yellow)
-    .replace(/§2/g,c.fg.green)
-    .replace(/§a/g,c.fg.green)
-    .replace(/§b/g,c.fg.cyan)
-    .replace(/§3/g,c.fg.cyan)
-    .replace(/§1/g,c.fg.blue)
-    .replace(/§9/g,c.fg.blue)
-    .replace(/§d/g,c.fg.magenta)
-    .replace(/§5/g,c.fg.magenta)
-    .replace(/§f/g,c.fg.white)
-    .replace(/§7/g,c.fg.white)
-    .replace(/§8/g,c.fg.white)
-    .replace(/§0/g,c.fg.white)
-    .replace(/§r/g,c.reset);
+    let colorized;
+    try {
+        colorized = message
+        .replace(/§4/g,c.fg.red)
+        .replace(/§c/g,c.fg.crimson)
+        .replace(/§6/g,c.fg.yellow)
+        .replace(/§e/g,c.fg.yellow)
+        .replace(/§2/g,c.fg.green)
+        .replace(/§a/g,c.fg.green)
+        .replace(/§b/g,c.fg.cyan)
+        .replace(/§3/g,c.fg.cyan)
+        .replace(/§1/g,c.fg.blue)
+        .replace(/§9/g,c.fg.blue)
+        .replace(/§d/g,c.fg.magenta)
+        .replace(/§5/g,c.fg.magenta)
+        .replace(/§f/g,c.fg.white)
+        .replace(/§7/g,c.fg.white)
+        .replace(/§8/g,c.fg.white)
+        .replace(/§0/g,c.fg.white)
+        .replace(/§r/g,c.reset);
+    }
+    catch (e) { 
+        return console.error(e);
+    }
+    return colorized;
 }
